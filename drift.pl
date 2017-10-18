@@ -26,7 +26,10 @@ my $max = -255;
 
 while (<>) {
   chomp;
-  if ( /^(\d{4})-([a-z0-9]*)-(\d\d)/i ) {
+
+  next if /transmitting/i;
+
+  if ( /^(\d{4})-([a-z0-9]*)-(\d\d)/i or /^(\d{4})(\d{2})(\d{2})\s+\d\d:\d\d/ ) {
     ($y, $m, $d) = ($1, $2, $3);
     $m = $months{$m} if $m =~ /[a-z]/i;
     $lastdate = $date;
@@ -42,17 +45,36 @@ while (<>) {
     }
   }
 
-  if (/^\d+\s+[+-]?\d+\s+-?[0-9.]+/) {
+  if (/^(\d{4})(\d{2})(\d{2}) \d{4}/ ) {
+    # jtdx
+    ($y, $m, $d) = ($1, $2, $3);
+    $logdate = "$y-$m-$d";
+    if ($logdate ne $date) {
+      $lastdate = $date;
+      $date = $logdate;
+      if ($lastdate ne $date and $count > 0) {
+	outputOneDay($lastdate, $count, $sum, $min, $max);
+	$count = 0;
+	$sum = 0;
+	$min = 255; 	# initial conditions
+	$max = -255;
+      }
+    }
+
+    (undef, $t, $db, $dt) = split /\s+/;
+    #print "$t $db $dt\n";
+    addOne($dt);
+    if (abs($dt) > 6) {
+      print "WARNING: BIG DELTA (jtdx): $_\n";
+    }
+  } elsif (/^\d+\s+[+-]?\d+\s+-?[0-9.]+/) {
+    # wsjtx
     ($t, $db, $dt) = split /\s+/;
     #print "$t $db $dt\n";
-    $count++;
-    $sum += $dt;
-    $max = $dt if $dt > $max;
-    $min = $dt if $dt < $min;
-    $totalsum += $dt;
-    $totalcount++;
-    $totalmax = $dt if $dt > $totalmax;
-    $totalmin = $dt if $dt < $totalmin;
+    addOne($dt);
+    if (abs($dt) > 6) {
+      print "WARNING: BIG DELTA (wsjtx): $_\n";
+    }
   }
 }
 
@@ -63,6 +85,21 @@ if ($count > 0) {
 outputOneDay("TOTAL", $totalcount, $totalsum, $totalmin, $totalmax);
 
 exit 0;
+
+sub addOne
+{
+  my $dt = shift;
+
+  $count++;
+  $sum += $dt;
+  $max = $dt if $dt > $max;
+  $min = $dt if $dt < $min;
+
+  $totalsum += $dt;
+  $totalcount++;
+  $totalmax = $dt if $dt > $totalmax;
+  $totalmin = $dt if $dt < $totalmin;
+}
 
 sub outputOneDay
 {
