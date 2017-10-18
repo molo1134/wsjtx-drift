@@ -61,7 +61,8 @@ while (<>) {
       }
     }
 
-    (undef, $t, $db, $dt) = split /\s+/;
+    (undef, $t, $db, $dt, $afreq, $mode) = split /\s+/;
+    next if $mode =~ /^[^#@~]/;	# JT65, JT9 and FT8
     #print "$t $db $dt\n";
     addOne($dt);
     if (abs($dt) > 6) {
@@ -69,8 +70,9 @@ while (<>) {
     }
   } elsif (/^\d+\s+[+-]?\d+\s+-?[0-9.]+/) {
     # wsjtx
-    ($t, $db, $dt) = split /\s+/;
+    ($t, $db, $dt, $afreq, $mode) = split /\s+/;
     #print "$t $db $dt\n";
+    next if $mode =~ /^[^#@~]/;	# JT65, JT9 and FT8
     addOne($dt);
     if (abs($dt) > 6) {
       print "WARNING: BIG DELTA (wsjtx): $_\n";
