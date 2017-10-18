@@ -34,8 +34,7 @@ while (<>) {
     #print "$date\n";
 
     if ($lastdate ne $date and $count > 0) {
-      my $avg = $sum / $count;
-      printf "%s: %d samples; %.2f avg, %.1f max, %.1f min\n", $lastdate, $count, $avg, $max, $min;
+      outputOneDay($lastdate, $count, $sum, $min, $max);
       $count = 0;
       $sum = 0;
       $min = 255; 	# initial conditions
@@ -57,5 +56,22 @@ while (<>) {
   }
 }
 
-my $totalavg = $totalsum / $totalcount;
-printf "TOTAL: %d samples; %.2f avg, %.1f max, %.1f min\n", $totalcount, $totalavg, $totalmax, $totalmin;
+if ($count > 0) {
+  outputOneDay($date, $count, $sum, $min, $max);
+}
+
+outputOneDay("TOTAL", $totalcount, $totalsum, $totalmin, $totalmax);
+
+exit 0;
+
+sub outputOneDay
+{
+  my $date = shift;
+  my $count = shift;
+  my $sum = shift;
+  my $min = shift;
+  my $max = shift;
+
+  my $avg = $sum / $count;
+  printf "%s: %d samples; %.2f avg, %.1f max, %.1f min\n", $date, $count, $avg, $max, $min;
+}
