@@ -17,6 +17,8 @@ my %months = %$months_ref;
 
 my $count = 0;
 my $sum = 0;
+my $min = 255; 	# initial conditions
+my $max = -255;
 
 while (<>) {
   chomp;
@@ -29,9 +31,11 @@ while (<>) {
 
     if ($lastdate ne $date and $count > 0) {
       my $avg = $sum / $count;
-      printf "%s: %d samples: %.2f offset\n", $lastdate, $count, $avg;
+      printf "%s: %d samples; %.2f avg, %.1f max, %.1f min\n", $lastdate, $count, $avg, $max, $min;
       $count = 0;
       $sum = 0;
+      $min = 255; 	# initial conditions
+      $max = -255;
     }
   }
 
@@ -40,5 +44,7 @@ while (<>) {
     #print "$t $db $dt\n";
     $count++;
     $sum += $dt;
+    $max = $dt if $dt > $max;
+    $min = $dt if $dt < $min;
   }
 }
