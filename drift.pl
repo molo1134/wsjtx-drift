@@ -15,6 +15,10 @@ my $months_ref = {
   "Dec" => "12" };
 my %months = %$months_ref;
 
+my $totalcount = 0;
+my $totalsum = 0;
+my $totalmin = 255;
+my $totalmax = -255;
 my $count = 0;
 my $sum = 0;
 my $min = 255; 	# initial conditions
@@ -46,5 +50,12 @@ while (<>) {
     $sum += $dt;
     $max = $dt if $dt > $max;
     $min = $dt if $dt < $min;
+    $totalsum += $dt;
+    $totalcount++;
+    $totalmax = $dt if $dt > $totalmax;
+    $totalmin = $dt if $dt < $totalmin;
   }
 }
+
+my $totalavg = $totalsum / $totalcount;
+printf "TOTAL: %d samples; %.2f avg, %.1f max, %.1f min\n", $totalcount, $totalavg, $totalmax, $totalmin;
