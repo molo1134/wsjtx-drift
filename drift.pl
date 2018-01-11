@@ -45,7 +45,7 @@ while (<>) {
     }
   }
 
-  if (/^(\d{4})(\d{2})(\d{2}) \d{4}/ ) {
+  if (/^(\d{4})(\d{2})(\d{2})[ _]\d{4}/ ) {
     # jtdx
     ($y, $m, $d) = ($1, $2, $3);
     $logdate = "$y-$m-$d";
@@ -61,7 +61,7 @@ while (<>) {
       }
     }
 
-    (undef, $t, $db, $dt, $afreq, $mode) = split /\s+/;
+    (undef, $t, $db, $dt, $afreq, $mode) = split /[\s_]+/;
     next if $mode =~ /^[^#@~]/;	# JT65, JT9 and FT8
     #print "$t $db $dt\n";
     addOne($dt);
